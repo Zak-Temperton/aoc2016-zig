@@ -1,0 +1,6 @@
+zig-cache/
+zig-out/
+build_runner.zig 
+**/*.rs.bk
+*.pdb
+/src/data
