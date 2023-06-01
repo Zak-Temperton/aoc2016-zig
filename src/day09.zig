@@ -10,35 +10,7 @@ const gpa = util.gpa;
 
 const data = @embedFile("data/day09.txt");
 
-fn nomInt(i: *usize) usize {
-    var int: usize = 0;
-    while (data[i.*] >= '0' and data[i.*] <= '9') : (i.* += 1) {
-        int = int * 10 + @as(usize, data[i.*] - '0');
-    }
-    return int;
-}
-
-fn readMarker(i: *usize) ?struct { size: usize, repeats: usize } {
-    if (i.* >= data.len - 2) return null;
-    i.* += 1;
-    const size = nomInt(i);
-    i.* += 1;
-    const repeats = nomInt(i);
-    i.* += 1;
-    return .{ .size = size, .repeats = repeats };
-}
-
-fn part1() usize {
-    var len: usize = 0;
-    var i: usize = 0;
-    while (readMarker(&i)) |marker| {
-        i += marker.size;
-        len += marker.size * marker.repeats;
-    }
-    return len;
-}
-
-fn nomIntFrom(input: []const u8, i: *usize) usize {
+fn nomInt(input: []const u8, i: *usize) usize {
     var int: usize = 0;
     while (input[i.*] >= '0' and input[i.*] <= '9') : (i.* += 1) {
         int = int * 10 + @as(usize, input[i.*] - '0');
@@ -46,21 +18,31 @@ fn nomIntFrom(input: []const u8, i: *usize) usize {
     return int;
 }
 
-fn readMarkerFrom(input: []const u8, i: *usize) ?struct { size: usize, repeats: usize } {
+fn readMarker(input: []const u8, i: *usize) ?struct { size: usize, repeats: usize } {
     if (i.* >= input.len - 2) return null;
     i.* += 1;
-    const size = nomIntFrom(input, i);
+    const size = nomInt(input, i);
     i.* += 1;
-    const repeats = nomIntFrom(input, i);
+    const repeats = nomInt(input, i);
     i.* += 1;
     return .{ .size = size, .repeats = repeats };
+}
+
+fn part1() usize {
+    var len: usize = 0;
+    var i: usize = 0;
+    while (readMarker(data, &i)) |marker| {
+        i += marker.size;
+        len += marker.size * marker.repeats;
+    }
+    return len;
 }
 
 fn decompress(input: []const u8) usize {
     if (input[0] != '(') return input.len;
     var i: usize = 0;
     var len: usize = 0;
-    while (readMarkerFrom(input, &i)) |marker| {
+    while (readMarker(input, &i)) |marker| {
         len += decompress(input[i .. i + marker.size]) * marker.repeats;
         i += marker.size;
     }
