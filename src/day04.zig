@@ -95,7 +95,7 @@ fn part2() !u32 {
     while (try parseLine(input)) |res| {
         input = res.a;
         if (res.b) |val| {
-            const add = @intCast(u8, val % 26);
+            const add: u8 = @intCast(val % 26);
             for (res.c.?) |char| {
                 if (char != '-') {
                     var c: u8 = char + add;

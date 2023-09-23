@@ -17,8 +17,8 @@ fn part1() u32 {
 
     for (data) |c| {
         switch (c) {
-            'R' => x = min(x + 1, 2),
-            'D' => y = min(y + 1, 2),
+            'R' => x = @min(x + 1, 2),
+            'D' => y = @min(y + 1, 2),
             'L' => x -|= 1,
             'U' => y -|= 1,
             '\n' => {
@@ -46,13 +46,13 @@ fn part2() !List(u8) {
     for (data) |c| {
         switch (c) {
             'R' => {
-                var xx = min(x + 1, 4);
+                var xx = @min(x + 1, 4);
                 if (keypad[y][xx] != '0') {
                     x = xx;
                 }
             },
             'D' => {
-                var yy = min(y + 1, 4);
+                var yy = @min(y + 1, 4);
                 if (keypad[yy][x] != '0') {
                     y = yy;
                 }
@@ -106,9 +106,7 @@ const sliceMax = std.mem.max;
 const parseInt = std.fmt.parseInt;
 const parseFloat = std.fmt.parseFloat;
 
-const min = std.math.min;
 const min3 = std.math.min3;
-const max = std.math.max;
 const max3 = std.math.max3;
 
 const print = std.debug.print;

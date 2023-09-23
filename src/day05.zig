@@ -77,10 +77,10 @@ fn part2() !u64 {
         }
         if (out[2] < 8) {
             const one: u8 = 1;
-            if (one << @truncate(u3, out[2]) & check == 0) {
-                check |= one << @truncate(u3, out[2]);
+            if (one << @truncate(out[2]) & check == 0) {
+                check |= one << @truncate(out[2]);
                 const n = @as(u64, out[3] >> 4);
-                password |= n << (@truncate(u6, 7 - out[2] << 2));
+                password |= n << (@truncate(7 - out[2] << 2));
             }
         }
         i += 1;

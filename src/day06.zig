@@ -78,7 +78,7 @@ fn part2() [8]u8 {
     for (columns, &least_common) |column, *char| {
         for (column, 'a'..) |count, k| {
             if (count < column[char.* - 'a']) {
-                char.* = @truncate(u8, k);
+                char.* = @truncate(k);
             }
         }
     }

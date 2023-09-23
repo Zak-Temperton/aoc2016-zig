@@ -67,7 +67,7 @@ pub fn build(b: *Builder) void {
         linkObject(b, exe);
         b.installArtifact(exe);
 
-        const install_cmd = b.addInstallArtifact(exe);
+        const install_cmd = b.addInstallArtifact(exe, .{});
 
         const run_test = b.addTest(.{
             .root_source_file = .{ .path = zigFile },
@@ -78,7 +78,7 @@ pub fn build(b: *Builder) void {
 
         const build_test = b.addExecutable(.{ .name = b.fmt("test_{s}", .{dayString}), .root_source_file = .{ .path = zigFile }, .target = target, .optimize = mode });
         linkObject(b, exe);
-        const install_test = b.addInstallArtifact(build_test);
+        const install_test = b.addInstallArtifact(build_test, .{});
 
         {
             const step_key = b.fmt("install_{s}", .{dayString});
@@ -137,7 +137,7 @@ pub fn build(b: *Builder) void {
         });
 
         linkObject(b, test_exe);
-        const install = b.addInstallArtifact(test_exe);
+        const install = b.addInstallArtifact(test_exe, .{});
         test_util.dependOn(&install.step);
     }
 
@@ -164,7 +164,7 @@ pub fn build(b: *Builder) void {
         });
 
         linkObject(b, test_exe);
-        const test_exe_install = b.addInstallArtifact(test_exe);
+        const test_exe_install = b.addInstallArtifact(test_exe, .{});
         test_build.dependOn(&test_exe_install.step);
     }
 }

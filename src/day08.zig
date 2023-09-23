@@ -20,8 +20,8 @@ const Screen = struct {
     }
 
     fn rect(self: *Self, w: u6, h: u6) void {
-        for (0..min(h, 6)) |y| {
-            self.pixels[y] |= (@as(u50, 1) << min(w, 50)) - 1;
+        for (0..@min(h, 6)) |y| {
+            self.pixels[y] |= (@as(u50, 1) << @min(w, 50)) - 1;
         }
     }
 
@@ -55,7 +55,7 @@ const Screen = struct {
         var out: [306]u8 = undefined;
         for (self.pixels) |pixel_row| {
             for (0..50) |j| {
-                if (pixel_row >> @truncate(u6, j) & 1 == 1) {
+                if (pixel_row >> @truncate(j) & 1 == 1) {
                     out[i] = '#';
                 } else {
                     out[i] = ' ';
@@ -70,9 +70,9 @@ const Screen = struct {
 };
 
 fn nomInt(i: *usize) u6 {
-    var num: u6 = @truncate(u6, data[i.*] - '0');
+    var num: u6 = @truncate(data[i.*] - '0');
     if (data[i.* + 1] >= '0' and data[i.* + 1] <= '9') {
-        num = (num * 10) + @truncate(u6, data[i.* + 1] - '0');
+        num = @truncate((num * 10) + data[i.* + 1] - '0');
         i.* += 2;
         return num;
     } else {
@@ -138,9 +138,7 @@ const sliceMax = std.mem.max;
 const parseInt = std.fmt.parseInt;
 const parseFloat = std.fmt.parseFloat;
 
-const min = std.math.min;
 const min3 = std.math.min3;
-const max = std.math.max;
 const max3 = std.math.max3;
 
 const print = std.debug.print;
