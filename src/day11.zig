@@ -20,7 +20,6 @@ fn U(comptime size: usize) type {
 const Part = enum { Part1, Part2 };
 
 fn FacilityStateGeneric(comptime part: Part) type {
-    //todo: part enum
     const mask_size = if (part == .Part1) 5 else 7;
     const mask_perm_count = mask_size * (mask_size * 2 + 1);
     const Mask: type = U(mask_size);
