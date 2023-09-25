@@ -52,7 +52,12 @@ pub fn build(b: *Builder) void {
     const run_all = b.step("run_all", "Run all days");
 
     const generate = b.step("generate", "Generate stub files from template/template.zig");
-    const build_generate = b.addExecutable(.{ .name = "generate", .root_source_file = .{ .path = "template/generate.zig" }, .target = target, .optimize = mode });
+    const build_generate = b.addExecutable(.{
+        .name = "generate",
+        .root_source_file = .{ .path = "template/generate.zig" },
+        .target = target,
+        .optimize = mode,
+    });
     const run_generate = b.addRunArtifact(build_generate);
     run_generate.cwd = std.fs.path.dirname(@src().file).?;
     generate.dependOn(&run_generate.step);
@@ -63,7 +68,12 @@ pub fn build(b: *Builder) void {
         const dayString = b.fmt("day{:0>2}", .{day});
         const zigFile = b.fmt("src/{s}.zig", .{dayString});
 
-        const exe = b.addExecutable(.{ .name = dayString, .root_source_file = .{ .path = zigFile }, .target = target, .optimize = mode });
+        const exe = b.addExecutable(.{
+            .name = dayString,
+            .root_source_file = .{ .path = zigFile },
+            .target = target,
+            .optimize = mode,
+        });
         linkObject(b, exe);
         b.installArtifact(exe);
 
@@ -76,7 +86,12 @@ pub fn build(b: *Builder) void {
         });
         linkObject(b, exe);
 
-        const build_test = b.addExecutable(.{ .name = b.fmt("test_{s}", .{dayString}), .root_source_file = .{ .path = zigFile }, .target = target, .optimize = mode });
+        const build_test = b.addExecutable(.{
+            .name = b.fmt("test_{s}", .{dayString}),
+            .root_source_file = .{ .path = zigFile },
+            .target = target,
+            .optimize = mode,
+        });
         linkObject(b, exe);
         const install_test = b.addInstallArtifact(build_test, .{});
 
