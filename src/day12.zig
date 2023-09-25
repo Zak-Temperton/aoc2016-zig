@@ -105,8 +105,6 @@ const Computer = struct {
     fn run(self: *Self) u32 {
         var index: u32 = 0;
         while (index < self.instructions.items.len) {
-            //print("{any}\n", .{self.instructions.items[index]});
-            //print("{any}\n", .{self.registers});
             switch (self.instructions.items[index]) {
                 .Inc => |register| {
                     self.registers[register] += 1;
