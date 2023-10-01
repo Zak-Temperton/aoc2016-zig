@@ -71,7 +71,7 @@ const Disk = struct {
     size: usize,
     fn init(allocator: Allocator, capacity: usize) !Self {
         return .{
-            .data = try List(u64).initCapacity(allocator, capacity >> 7),
+            .data = try List(u64).initCapacity(allocator, capacity >> 8),
             .capacity = capacity,
             .size = 0,
         };
