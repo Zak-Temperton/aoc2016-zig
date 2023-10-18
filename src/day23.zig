@@ -175,7 +175,7 @@ pub fn main() !void {
 }
 
 // Useful stdlib functions
-const tokenize = std.mem.tokenize;
+const tokenize = std.mem.tokenizeAny;
 const split = std.mem.split;
 const indexOf = std.mem.indexOfScalar;
 const indexOfAny = std.mem.indexOfAny;
