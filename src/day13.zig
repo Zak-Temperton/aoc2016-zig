@@ -45,20 +45,24 @@ const Maze = struct {
         }
     }
 
-    fn bfs(self: *Self, tx: u6, ty: u6) !?usize {
+    fn bfs(self: *Self, alloc: Allocator, tx: u6, ty: u6) !?usize {
         const PosList = List(struct { x: u6, y: u6 });
-        var next = PosList.init(gpa);
+        var next = PosList.init(alloc);
+        defer next.deinit();
         var new_next: PosList = undefined;
         try next.append(.{ .x = 1, .y = 1 });
         self.setWall(1, 1);
 
         var steps: usize = 0;
         while (next.items.len != 0) : (steps += 1) {
-            new_next = PosList.init(gpa);
+            new_next = PosList.init(alloc);
             for (next.items) |pos| {
                 const x = pos.x;
                 const y = pos.y;
-                if (x == tx and y == ty) return steps;
+                if (x == tx and y == ty) {
+                    new_next.deinit();
+                    return steps;
+                }
 
                 if (x != 63 and !self.isWall(x + 1, y)) {
                     self.setWall(x + 1, y);
@@ -84,9 +88,10 @@ const Maze = struct {
         return null;
     }
 
-    fn bfs50(self: *Self) !usize {
+    fn bfs50(self: *Self, alloc: Allocator) !usize {
         const PosList = List(struct { x: u6, y: u6 });
-        var next = PosList.init(gpa);
+        var next = PosList.init(alloc);
+        defer next.deinit(); //deinits next and new_next
         var new_next: PosList = undefined;
         try next.append(.{ .x = 1, .y = 1 });
         self.setWall(1, 1);
@@ -95,7 +100,7 @@ const Maze = struct {
 
         var steps: usize = 0;
         while (steps <= 50 and next.items.len != 0) : (steps += 1) {
-            new_next = PosList.init(gpa);
+            new_next = PosList.init(alloc);
             for (next.items) |pos| {
                 const x = pos.x;
                 const y = pos.y;
@@ -129,14 +134,23 @@ const Maze = struct {
 pub fn main() !void {
     var timer = try std.time.Timer.start();
     var maze = Maze.init(1352);
-    const part1 = (try maze.bfs(31, 39)).?;
+    const part1 = (try maze.bfs(gpa, 31, 39)).?;
     const part1_time = timer.read();
     print("{d} {d}ns\n", .{ part1, part1_time });
     timer.reset();
     var maze2 = Maze.init(1352);
-    const part2 = try maze2.bfs50();
+    const part2 = try maze2.bfs50(gpa);
     const part2_time = timer.read();
     print("{d} {d}ns\n", .{ part2, part2_time });
+}
+
+test "part1" {
+    var maze = Maze.init(1352);
+    _ = (try maze.bfs(std.testing.allocator, 31, 39)).?;
+}
+test "part2" {
+    var maze = Maze.init(1352);
+    _ = try maze.bfs50(std.testing.allocator);
 }
 
 // Useful stdlib functions

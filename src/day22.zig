@@ -12,16 +12,16 @@ const data = @embedFile("data/day22.txt");
 
 pub fn main() !void {
     var timer = try std.time.Timer.start();
-    const p1 = try part1();
+    const p1 = try part1(gpa);
     const p1_time = timer.read();
-    const p2 = try part2();
+    const p2 = try part2(gpa);
     const p2_time = timer.read();
     print("{d} {d}ns\n", .{ p1, p1_time });
     print("{d} {d}ns\n", .{ p2, p2_time });
 }
 
-fn part1() !usize {
-    var nodes = List([2]u16).init(gpa);
+fn part1(alloc: Allocator) !usize {
+    var nodes = List([2]u16).init(alloc);
     var lines = tokenize(u8, data, "\r\n");
     defer nodes.deinit();
     _ = lines.next();
@@ -43,9 +43,9 @@ fn part1() !usize {
     return count;
 }
 
-fn part2() !usize {
+fn part2(alloc: Allocator) !usize {
     var lines = tokenize(u8, data, "\r\n");
-    var map = List(bool).init(gpa);
+    var map = List(bool).init(alloc);
     defer map.deinit();
     _ = lines.next();
     _ = lines.next();
@@ -60,17 +60,17 @@ fn part2() !usize {
         try map.append(used <= 95);
         z += 1;
     }
-    return part2b(zero, map.items);
+    return part2b(alloc, zero, map.items);
 }
 
-fn part2b(zero: usize, map: []bool) !usize {
+fn part2b(alloc: Allocator, zero: usize, map: []bool) !usize {
     var count: usize = 0;
-    var next = List(usize).init(gpa);
+    var next = List(usize).init(alloc);
     defer next.deinit();
     try next.append(zero);
     map[zero] = false;
     blk: while (true) : (count += 1) {
-        var next_next = List(usize).init(gpa);
+        var next_next = List(usize).init(alloc);
         for (next.items) |item| {
             if (item == 37 * 26) break :blk;
             const x = item / 26;
@@ -96,6 +96,14 @@ fn part2b(zero: usize, map: []bool) !usize {
         next = next_next;
     }
     return count + 36 * 5;
+}
+
+test "part1" {
+    _ = try part1(std.testing.allocator);
+}
+
+test "part2" {
+    _ = try part2(std.testing.allocator);
 }
 
 // Useful stdlib functions

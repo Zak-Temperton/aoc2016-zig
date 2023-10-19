@@ -139,8 +139,8 @@ const words = std.ComptimeStringMap(Instructions, .{
     .{ "swap", .swap },
 });
 
-fn part1(input: []const u8) ![]u8 {
-    var password = try CircularBuffer.init(gpa, input);
+fn part1(alloc: Allocator, input: []const u8) ![]u8 {
+    var password = try CircularBuffer.init(alloc, input);
     defer password.deinit();
     var lines = std.mem.tokenizeAny(u8, data.*, "\r\n");
     while (lines.next()) |line| {
@@ -220,11 +220,11 @@ fn nextPermutation(nums: []u8) void {
     std.mem.reverse(u8, nums[i + 1 ..]);
 }
 
-fn part2(input: []const u8) ![]u8 {
-    var perm = try gpa.dupe(u8, input);
+fn part2(alloc: Allocator, input: []const u8) ![]u8 {
+    var perm = try alloc.dupe(u8, input);
     while (true) : (nextPermutation(perm)) {
-        var res = try part1(perm);
-        defer gpa.free(res);
+        var res = try part1(alloc, perm);
+        defer alloc.free(res);
         if (std.mem.eql(u8, res, "fbgdceah")) {
             return perm;
         }
@@ -234,14 +234,28 @@ fn part2(input: []const u8) ![]u8 {
 pub fn main() !void {
     const input = "abcdefgh";
     var timer = try std.time.Timer.start();
-    const p1 = try part1(input);
+    const p1 = try part1(gpa, input);
     defer gpa.free(p1);
     const p1_time = timer.read();
-    const p2 = try part2(input);
+    const p2 = try part2(gpa, input);
     defer gpa.free(p2);
     const p2_time = timer.read();
     print("{s} {d}ns\n", .{ p1, p1_time });
     print("{s} {d}ns\n", .{ p2, p2_time });
+}
+
+test "part1" {
+    const input = "abcdefgh";
+    const alloc = std.testing.allocator;
+    const p1 = try part1(alloc, input);
+    defer alloc.free(p1);
+}
+
+test "part2" {
+    const input = "abcdefgh";
+    const alloc = std.testing.allocator;
+    const p2 = try part2(alloc, input);
+    defer alloc.free(p2);
 }
 
 // Useful stdlib functions

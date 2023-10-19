@@ -55,12 +55,12 @@ fn part2Hash(b: []const u8, out: *[Md5.digest_length]u8) void {
         Md5.hash(&bytesToHex(out, .lower), out, .{});
 }
 
-fn solve(comptime hash: fn ([]const u8, *[Md5.digest_length]u8) void) !usize {
+fn solve(comptime hash: fn ([]const u8, *[Md5.digest_length]u8) void, alloc: Allocator) !usize {
     const input = "ihaygndm";
     var index: usize = 0;
-    var keys = List(usize).init(gpa);
+    var keys = List(usize).init(alloc);
     defer keys.deinit();
-    var triples = List(struct { index: usize, char: u4, valid: bool }).init(gpa);
+    var triples = List(struct { index: usize, char: u4, valid: bool }).init(alloc);
     defer triples.deinit();
     var i: usize = 0;
     var buf: [Md5.digest_length]u8 = undefined;
@@ -71,7 +71,8 @@ fn solve(comptime hash: fn ([]const u8, *[Md5.digest_length]u8) void) !usize {
                 i += 1;
             }
         }
-        const x: []u8 = try std.fmt.allocPrint(gpa, "{s}{d}", .{ input, index });
+        const x: []u8 = try std.fmt.allocPrint(alloc, "{s}{d}", .{ input, index });
+        defer alloc.free(x);
         hash(x, &buf);
         if (hasChain(buf, 3)) |triple| {
             if (hasChain(buf, 5)) |pentuple| {
@@ -86,13 +87,20 @@ fn solve(comptime hash: fn ([]const u8, *[Md5.digest_length]u8) void) !usize {
 }
 pub fn main() !void {
     var timer = try std.time.Timer.start();
-    const p1 = try solve(part1Hash);
+    const p1 = try solve(part1Hash, gpa);
     const p1_time = timer.read();
     print("{d} {d}ns\n", .{ p1, p1_time });
     timer.reset();
-    const p2 = try solve(part2Hash);
+    const p2 = try solve(part2Hash, gpa);
     const p2_time = timer.read();
     print("{d} {d}ns\n", .{ p2, p2_time });
+}
+
+test "part1" {
+    _ = try solve(part1Hash, std.testing.allocator);
+}
+test "part2" {
+    _ = try solve(part2Hash, std.testing.allocator);
 }
 
 // Useful stdlib functions

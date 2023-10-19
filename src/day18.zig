@@ -21,8 +21,10 @@ fn parseData() DataType {
     }
     return result;
 }
-fn solve(num_rows: usize) !usize {
-    var rows = try List(DataType).initCapacity(gpa, num_rows);
+
+fn solve(alloc: Allocator, num_rows: usize) !usize {
+    var rows = try List(DataType).initCapacity(alloc, num_rows);
+    defer rows.deinit();
     try rows.append(parseData());
     for (0..num_rows - 1) |_| {
         const last = rows.getLast();
@@ -57,13 +59,17 @@ fn solve(num_rows: usize) !usize {
 
 pub fn main() !void {
     var timer = try std.time.Timer.start();
-    const p1 = try solve(40);
+    const p1 = try solve(gpa, 40);
     const p1_time = timer.read();
     print("{d} {d}ns\n", .{ p1, p1_time });
     timer.reset();
-    const p2 = try solve(40000);
+    const p2 = try solve(gpa, 40000);
     const p2_time = timer.read();
     print("{d} {d}ns\n", .{ p2, p2_time });
+}
+
+test "solve" {
+    _ = try solve(std.testing.allocator, 40);
 }
 
 // Useful stdlib functions

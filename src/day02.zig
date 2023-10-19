@@ -31,10 +31,10 @@ fn part1() u32 {
     return res;
 }
 
-fn part2() !List(u8) {
+fn part2(alloc: Allocator) !List(u8) {
     var x: u32 = 1;
     var y: u32 = 1;
-    var res = List(u8).init(gpa);
+    var res = List(u8).init(alloc);
     const keypad = [5][5]u8{
         [_]u8{ '0', '0', '1', '0', '0' },
         [_]u8{ '0', '2', '3', '4', '0' },
@@ -84,10 +84,15 @@ pub fn main() !void {
     const p1_time = timer.read();
     print("{d} {d}ns\n", .{ p1, p1_time });
     timer.reset();
-    const p2 = try part2();
+    const p2 = try part2(gpa);
     defer p2.deinit();
     const p2_time = timer.read();
     print("{s} {d}ns\n", .{ p2.items, p2_time });
+}
+
+test "part2" {
+    const p2 = try part2(std.testing.allocator);
+    defer p2.deinit();
 }
 
 // Useful stdlib functions

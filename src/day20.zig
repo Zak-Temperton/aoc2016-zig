@@ -53,8 +53,8 @@ fn nomLine(input: []const u8) ?struct { a: []const u8, b: Range } {
     return .{ .a = str, .b = result };
 }
 
-fn parseData() !List(Range) {
-    var result = List(Range).init(gpa);
+fn parseData(alloc: Allocator) !List(Range) {
+    var result = List(Range).init(alloc);
     var str: []const u8 = data;
     while (nomLine(str)) |res| {
         str = res.a;
@@ -67,8 +67,8 @@ fn ord(_: void, lhs: Range, rhs: Range) bool {
     return lhs[0] < rhs[0];
 }
 
-fn part1() !u64 {
-    var ranges = try parseData();
+fn part1(alloc: Allocator) !u64 {
+    var ranges = try parseData(alloc);
     defer ranges.deinit();
     sort(Range, ranges.items, {}, ord);
     if (ranges.items[0][0] != 0) return 0;
@@ -84,8 +84,8 @@ fn part1() !u64 {
     return max;
 }
 
-fn part2() !u64 {
-    var ranges = try parseData();
+fn part2(alloc: Allocator) !u64 {
+    var ranges = try parseData(alloc);
     defer ranges.deinit();
     var count: u64 = 0;
     sort(Range, ranges.items, {}, ord);
@@ -106,15 +106,21 @@ fn part2() !u64 {
 }
 
 pub fn main() !void {
-    const num = 3004953;
-    _ = num;
     var timer = try std.time.Timer.start();
-    const p1 = try part1();
+    const p1 = try part1(gpa);
     const p1_time = timer.read();
-    const p2 = try part2();
+    const p2 = try part2(gpa);
     const p2_time = timer.read();
     print("{d} {d}ns\n", .{ p1, p1_time });
     print("{d} {d}ns\n", .{ p2, p2_time });
+}
+
+test "part1" {
+    _ = try part1(std.testing.allocator);
+}
+
+test "part2" {
+    _ = try part2(std.testing.allocator);
 }
 
 // Useful stdlib functions

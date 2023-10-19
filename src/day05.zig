@@ -14,14 +14,14 @@ fn first5Zero(input: [Md5.digest_length]u8) bool {
     return input[0] == 0 and input[1] == 0 and input[2] >> 4 == 0;
 }
 
-fn part1() !u64 {
+fn part1(alloc: Allocator) !u64 {
     var out: [Md5.digest_length]u8 = std.mem.zeroes([Md5.digest_length]u8);
     var i: usize = 0;
-    var string = List(u8).init(gpa);
+    var string = List(u8).init(alloc);
     defer string.deinit();
     try string.appendSlice(data[0..8]);
 
-    var num = List(u8).init(gpa);
+    var num = List(u8).init(alloc);
     defer num.deinit();
     var num_writer = num.writer();
     try formatInt(i, 10, Case.lower, .{}, num_writer);
@@ -50,14 +50,14 @@ fn part1() !u64 {
     return password;
 }
 
-fn part2() !u64 {
+fn part2(alloc: Allocator) !u64 {
     var out: [Md5.digest_length]u8 = std.mem.zeroes([Md5.digest_length]u8);
     var i: usize = 0;
-    var string = List(u8).init(gpa);
+    var string = List(u8).init(alloc);
     defer string.deinit();
     try string.appendSlice(data[0..8]);
 
-    var num = List(u8).init(gpa);
+    var num = List(u8).init(alloc);
     var num_writer = num.writer();
     defer num.deinit();
     try formatInt(i, 10, Case.lower, .{}, num_writer);
@@ -96,13 +96,21 @@ fn part2() !u64 {
 
 pub fn main() !void {
     var timer = try Timer.start();
-    const p1 = try part1();
+    const p1 = try part1(gpa);
     const p1_time = timer.read();
     print("{x} {d}ns\n", .{ p1, p1_time });
     timer.reset();
-    const p2 = try part2();
+    const p2 = try part2(gpa);
     const p2_time = timer.read();
     print("{x} {d}ns\n", .{ p2, p2_time });
+}
+
+test "part1" {
+    _ = try part1(std.testing.allocator);
+}
+
+test "part2" {
+    _ = try part2(std.testing.allocator);
 }
 
 // Useful stdlib functions

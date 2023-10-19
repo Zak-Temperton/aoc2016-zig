@@ -147,15 +147,15 @@ fn FacilityStateGeneric(comptime part: Part) type {
     };
 }
 
-fn solve(comptime part: Part) !usize {
-    var map = Map(u64, void).init(gpa);
+fn solve(comptime part: Part, alloc: Allocator) !usize {
+    var map = Map(u64, void).init(alloc);
     defer map.deinit();
-    var perms = List(FacilityStateGeneric(part)).init(gpa);
+    var perms = List(FacilityStateGeneric(part)).init(alloc);
     defer perms.deinit();
     try perms.append(FacilityStateGeneric(part).init());
     var i: usize = 0;
     while (perms.items.len != 0) : (i += 1) {
-        var newPerms = List(FacilityStateGeneric(part)).init(gpa);
+        var newPerms = List(FacilityStateGeneric(part)).init(alloc);
         for (perms.items) |perm| {
             if (try perm.nextPerms(&map, &newPerms)) {
                 return i + 1;
@@ -169,13 +169,20 @@ fn solve(comptime part: Part) !usize {
 
 pub fn main() !void {
     var timer = try std.time.Timer.start();
-    const p1 = try solve(.Part1);
+    const p1 = try solve(.Part1, gpa);
     const p1_time = timer.read();
     print("{d} {d}ns\n", .{ p1, p1_time });
     timer.reset();
-    const p2 = try solve(.Part2);
+    const p2 = try solve(.Part2, gpa);
     const p2_time = timer.read();
     print("{d} {d}ns\n", .{ p2, p2_time });
+}
+
+test "part1" {
+    _ = try solve(.Part1, std.testing.allocator);
+}
+test "part2" {
+    _ = try solve(.Part2, std.testing.allocator);
 }
 
 // Useful stdlib functions

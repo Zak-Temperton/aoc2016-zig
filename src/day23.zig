@@ -83,9 +83,10 @@ fn parseLine(input: []const u8) ?Instruction {
     return result;
 }
 
-fn solve(input: i64) !i64 {
+fn solve(alloc: Allocator, input: i64) !i64 {
     var registers: [4]i64 = .{ input, 0, 0, 0 };
-    var instructions = List(Instruction).init(gpa);
+    var instructions = List(Instruction).init(alloc);
+    defer instructions.deinit();
     var lines = tokenize(u8, data, "\r\n");
     while (lines.next()) |line| {
         try instructions.append(parseLine(line).?);
@@ -165,13 +166,17 @@ fn solve(input: i64) !i64 {
 }
 pub fn main() !void {
     var timer = try std.time.Timer.start();
-    const p1 = try solve(7);
+    const p1 = try solve(gpa, 7);
     const p1_time = timer.read();
     print("{d} {d}ns\n", .{ p1, p1_time });
     timer.reset();
-    const p2 = try solve(12);
+    const p2 = try solve(gpa, 12);
     const p2_time = timer.read();
     print("{d} {d}ns\n", .{ p2, p2_time });
+}
+
+test "solve" {
+    _ = try solve(std.testing.allocator, 7);
 }
 
 // Useful stdlib functions

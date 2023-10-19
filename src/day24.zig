@@ -20,17 +20,17 @@ pub fn main() !void {
     print("{d} {d}ns\n", .{ p2, p2_time });
 }
 
-fn part1(all: Allocator) !usize {
-    var map = List([]const bool).init(all);
+fn part1(alloc: Allocator) !usize {
+    var map = List([]const bool).init(alloc);
     defer {
-        for (map.items) |item| all.free(item);
+        for (map.items) |item| alloc.free(item);
         map.deinit();
     }
     var nums: [8][2]u8 = .{ .{ 0, 0 }, .{ 0, 0 }, .{ 0, 0 }, .{ 0, 0 }, .{ 0, 0 }, .{ 0, 0 }, .{ 0, 0 }, .{ 0, 0 } };
     var lines = tokenize(u8, data, "\r\n");
     var y: u8 = 0;
     while (lines.next()) |line| {
-        var row = List(bool).init(all);
+        var row = List(bool).init(alloc);
         var x: u8 = 0;
         for (line) |c| {
             try row.append(c == '#');
@@ -42,26 +42,26 @@ fn part1(all: Allocator) !usize {
         try map.append(try row.toOwnedSlice());
         y += 1;
     }
-    var paths = List([]usize).init(all);
+    var paths = List([]usize).init(alloc);
     defer {
-        for (paths.items) |item| all.free(item);
+        for (paths.items) |item| alloc.free(item);
         paths.deinit();
     }
     for (0..nums.len) |i| {
-        var map_clone = try List([]bool).initCapacity(all, map.items.len);
+        var map_clone = try List([]bool).initCapacity(alloc, map.items.len);
         defer {
-            for (map_clone.items) |item| all.free(item);
+            for (map_clone.items) |item| alloc.free(item);
             map_clone.deinit();
         }
         for (map.items) |row| {
-            try map_clone.append(try all.dupe(bool, row[0..]));
+            try map_clone.append(try alloc.dupe(bool, row[0..]));
         }
-        try paths.append(try bfsb(all, &map_clone, &nums, i));
+        try paths.append(try bfsb(alloc, &map_clone, &nums, i));
     }
 
     const start: []const u8 = &[_]u8{ 0, 1, 2, 3, 4, 5, 6, 7 };
-    var perm: []u8 = try all.dupe(u8, start);
-    defer all.free(perm);
+    var perm: []u8 = try alloc.dupe(u8, start);
+    defer alloc.free(perm);
     var min: usize = followPath(paths.items, perm);
     nextPermutation(perm);
     while (perm[0] == 0) : (nextPermutation(perm)) {
@@ -73,17 +73,17 @@ fn part1(all: Allocator) !usize {
     return min;
 }
 
-fn part2(all: Allocator) !usize {
-    var map = List([]const bool).init(all);
+fn part2(alloc: Allocator) !usize {
+    var map = List([]const bool).init(alloc);
     defer {
-        for (map.items) |item| all.free(item);
+        for (map.items) |item| alloc.free(item);
         map.deinit();
     }
     var nums: [8][2]u8 = .{ .{ 0, 0 }, .{ 0, 0 }, .{ 0, 0 }, .{ 0, 0 }, .{ 0, 0 }, .{ 0, 0 }, .{ 0, 0 }, .{ 0, 0 } };
     var lines = tokenize(u8, data, "\r\n");
     var y: u8 = 0;
     while (lines.next()) |line| {
-        var row = List(bool).init(all);
+        var row = List(bool).init(alloc);
         var x: u8 = 0;
         for (line) |c| {
             try row.append(c == '#');
@@ -95,21 +95,21 @@ fn part2(all: Allocator) !usize {
         try map.append(try row.toOwnedSlice());
         y += 1;
     }
-    var paths = List([]usize).init(all);
+    var paths = List([]usize).init(alloc);
     defer {
-        for (paths.items) |item| all.free(item);
+        for (paths.items) |item| alloc.free(item);
         paths.deinit();
     }
     for (0..nums.len) |i| {
-        var map_clone = try List([]bool).initCapacity(all, map.items.len);
+        var map_clone = try List([]bool).initCapacity(alloc, map.items.len);
         defer {
-            for (map_clone.items) |item| all.free(item);
+            for (map_clone.items) |item| alloc.free(item);
             map_clone.deinit();
         }
         for (map.items) |row| {
-            try map_clone.append(try all.dupe(bool, row[0..]));
+            try map_clone.append(try alloc.dupe(bool, row[0..]));
         }
-        try paths.append(try bfsb(all, &map_clone, &nums, i));
+        try paths.append(try bfsb(alloc, &map_clone, &nums, i));
     }
 
     const start: []const u8 = &[_]u8{ 0, 1, 2, 3, 4, 5, 6, 7 };
@@ -200,6 +200,12 @@ fn bfsb(all: Allocator, map: *List([]bool), nums: [][2]u8, i: usize) ![]usize {
     return result;
 }
 
+test "part1" {
+    _ = try part1(std.testing.allocator);
+}
+test "part2" {
+    _ = try part2(std.testing.allocator);
+}
 // Useful stdlib functions
 const tokenize = std.mem.tokenizeAny;
 const split = std.mem.split;

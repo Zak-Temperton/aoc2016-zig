@@ -71,10 +71,10 @@ fn findABAs(input: []const u8, aba: bool) !struct { end: usize, set: Map(ABA, vo
     return .{ .end = i + 2, .set = list };
 }
 
-fn parseLineABA(input: []const u8) !?struct { end: usize, valid: bool } {
+fn parseLineABA(alloc: Allocator, input: []const u8) !?struct { end: usize, valid: bool } {
     if (input.len < 2) return null;
-    var aba_set = Map(ABA, void).init(gpa);
-    var bab_set = Map(ABA, void).init(gpa);
+    var aba_set = Map(ABA, void).init(alloc);
+    var bab_set = Map(ABA, void).init(alloc);
     defer {
         aba_set.deinit();
         bab_set.deinit();
@@ -111,10 +111,10 @@ fn parseLineABA(input: []const u8) !?struct { end: usize, valid: bool } {
     return .{ .end = i + 2, .valid = false };
 }
 
-fn part2() !usize {
+fn part2(alloc: Allocator) !usize {
     var count: usize = 0;
     var i: usize = 0;
-    while (try parseLineABA(data[i..])) |line| {
+    while (try parseLineABA(alloc, data[i..])) |line| {
         i += line.end;
         if (line.valid) count += 1;
     }
@@ -127,9 +127,13 @@ pub fn main() !void {
     const p1_time = timer.read();
     print("{d} {d}ns\n", .{ p1, p1_time });
     timer.reset();
-    const p2 = try part2();
+    const p2 = try part2(gpa);
     const p2_time = timer.read();
     print("{d} {d}ns\n", .{ p2, p2_time });
+}
+
+test "part2" {
+    _ = try part2(std.testing.allocator);
 }
 
 // Useful stdlib functions

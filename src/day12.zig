@@ -32,8 +32,8 @@ fn nomInt(input: []const u8, i: *usize) u32 {
     return int;
 }
 
-fn parseData(allo: Allocator) !List(Instruction) {
-    var instructions = List(Instruction).init(allo);
+fn parseData(alloc: Allocator) !List(Instruction) {
+    var instructions = List(Instruction).init(alloc);
     var i: usize = 0;
 
     while (i < data.len - 1) {
@@ -145,8 +145,8 @@ const Computer = struct {
 pub fn main() !void {
     var timer = try std.time.Timer.start();
     const instructions = try parseData(gpa);
-    const setup_time = timer.lap();
     defer instructions.deinit();
+    const setup_time = timer.lap();
     var computer = try Computer.init(instructions, [4]u32{ 0, 0, 0, 0 });
     const part1 = computer.run();
     const part1_time = timer.read();
@@ -156,6 +156,20 @@ pub fn main() !void {
     const part2 = computer2.run();
     const part2_time = timer.read();
     print("{d} {d}ns\n", .{ part2, setup_time + part2_time });
+}
+
+test "part1" {
+    const instructions = try parseData(std.testing.allocator);
+    defer instructions.deinit();
+    var computer = try Computer.init(instructions, [4]u32{ 0, 0, 0, 0 });
+    _ = computer.run();
+}
+
+test "part2" {
+    const instructions = try parseData(std.testing.allocator);
+    defer instructions.deinit();
+    var computer2 = try Computer.init(instructions, [4]u32{ 0, 0, 1, 0 });
+    _ = computer2.run();
 }
 
 // Useful stdlib functions

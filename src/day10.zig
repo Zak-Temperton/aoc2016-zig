@@ -222,6 +222,17 @@ pub fn main() !void {
     print("{d} {d}ns\n", .{ p2, p2_time + setup_time });
 }
 
+test "part1" {
+    var factory = try Factory.initFrom(data, std.testing.allocator);
+    defer factory.deinit();
+    _ = try factory.part1(61, 17);
+}
+test "part2" {
+    var factory = try Factory.initFrom(data, std.testing.allocator);
+    defer factory.deinit();
+    _ = try factory.part2();
+}
+
 // Useful stdlib functions
 const tokenize = std.mem.tokenizeconst;
 const split = std.mem.split;

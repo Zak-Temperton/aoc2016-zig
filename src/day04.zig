@@ -88,9 +88,9 @@ fn equal(left: []const u8, right: []const u8) bool {
     return true;
 }
 
-fn part2() !u32 {
+fn part2(alloc: Allocator) !u32 {
     var input = data;
-    var message = List(u8).init(gpa);
+    var message = List(u8).init(alloc);
     defer message.deinit();
     while (try parseLine(input)) |res| {
         input = res.a;
@@ -120,11 +120,13 @@ pub fn main() !void {
     const p1_time = timer.read();
     print("{d} {d}ns\n", .{ p1, p1_time });
     timer.reset();
-    const p2 = try part2();
+    const p2 = try part2(gpa);
     const p2_time = timer.read();
     print("{d} {d}ns\n", .{ p2, p2_time });
 }
-
+test "part2" {
+    _ = try part2(std.testing.allocator);
+}
 // Useful stdlib functions
 const tokenize = std.mem.tokenize;
 const split = std.mem.split;

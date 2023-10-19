@@ -42,11 +42,11 @@ fn part1() !i32 {
     return try absInt(x) + try absInt(y);
 }
 
-fn part2() !i32 {
+fn part2(alloc: Allocator) !i32 {
     var x: i32 = 0;
     var y: i32 = 0;
     var dir: i32 = 0;
-    var my_hash_map = Map(struct { i32, i32 }, void).init(gpa);
+    var my_hash_map = Map(struct { i32, i32 }, void).init(alloc);
     defer my_hash_map.deinit();
 
     try my_hash_map.put(.{ x, y }, {});
@@ -92,9 +92,13 @@ pub fn main() !void {
     const p1_time = timer.read();
     print("{d} {d}ns\n", .{ p1, p1_time });
     timer.reset();
-    const p2 = try part2();
+    const p2 = try part2(gpa);
     const p2_time = timer.read();
     print("{d} {d}ns\n", .{ p2, p2_time });
+}
+
+test "part2" {
+    _ = try part2(std.testing.allocator);
 }
 
 const absInt = std.math.absInt;

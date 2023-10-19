@@ -246,8 +246,8 @@ fn part1(comptime S: usize, input: U(S), input_len: usize) struct { U(S), usize 
     return checksum(S, disk);
 }
 
-fn part2(input: u64, input_len: u7) !Disk {
-    var disk2 = try Disk.init(gpa, 35651584);
+fn part2(alloc: Allocator, input: u64, input_len: u7) !Disk {
+    var disk2 = try Disk.init(alloc, 35651584);
     try disk2.append(input, input_len);
     try disk2.fillDisk();
     try disk2.intoChecksum();
@@ -264,11 +264,16 @@ pub fn main() !void {
     print(" {d}ns\n", .{p1_time});
     timer.reset();
 
-    var disk2 = try part2(0b11101000110010100, 17);
+    var disk2 = try part2(gpa, 0b11101000110010100, 17);
     const p2_time = timer.read();
     defer disk2.deinit();
     disk2.print();
     print(" {d}ns\n", .{p2_time});
+}
+
+test "part2" {
+    var disk2 = try part2(std.testing.allocator, 0b11101000110010100, 17);
+    disk2.deinit();
 }
 
 // Useful stdlib functions

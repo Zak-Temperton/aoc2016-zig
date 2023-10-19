@@ -164,7 +164,7 @@ fn solve(alloc: Allocator) !i64 {
 
 pub fn main() !void {
     var timer = try std.time.Timer.start();
-    const p1 = try solve();
+    const p1 = try solve(gpa);
     const p1_time = timer.read();
     print("{d} {d}ns\n", .{ p1, p1_time });
 }
