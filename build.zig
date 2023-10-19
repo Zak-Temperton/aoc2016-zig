@@ -1,28 +1,9 @@
 const std = @import("std");
 const Builder = std.build.Builder;
+const LazyPath = std.build.LazyPath;
 const LibExeObjStep = std.build.LibExeObjStep;
 
-const required_zig_version = std.SemanticVersion.parse("0.10.0") catch unreachable;
-const padded_int_fix = std.SemanticVersion.parse("0.11.0-dev.331+304e82808") catch unreachable;
-
-/// set this to true to link libc
-const should_link_libc = false;
-
-fn linkObject(b: *Builder, obj: *LibExeObjStep) void {
-    if (should_link_libc) obj.linkLibC();
-    _ = b;
-
-    // Padded integers are buggy in 0.10.0, fixed in 0.11.0-dev.331+304e82808
-    // This is especially bad for AoC because std.StaticBitSet is commonly used.
-    // If your version is older than that, we use stage1 to avoid this bug.
-    // Issue: https://github.com/ziglang/zig/issues/13480
-    // Fix: https://github.com/ziglang/zig/pull/13637
-    if (comptime @import("builtin").zig_version.order(padded_int_fix) == .lt) {
-        obj.use_stage1 = true;
-    }
-
-    // Add linking for packages or third party libraries here
-}
+const required_zig_version = std.SemanticVersion.parse("0.11.0") catch unreachable;
 
 pub fn build(b: *Builder) void {
     if (comptime @import("builtin").zig_version.order(required_zig_version) == .lt) {
@@ -70,29 +51,25 @@ pub fn build(b: *Builder) void {
 
         const exe = b.addExecutable(.{
             .name = dayString,
-            .root_source_file = .{ .path = zigFile },
+            .root_source_file = LazyPath.relative(zigFile),
             .target = target,
             .optimize = mode,
         });
-        linkObject(b, exe);
+
         b.installArtifact(exe);
 
         const install_cmd = b.addInstallArtifact(exe, .{});
 
         const run_test = b.addTest(.{
+            .name = b.fmt("test_{s}", .{dayString}),
             .root_source_file = .{ .path = zigFile },
-            .target = target,
-            .optimize = mode,
         });
-        linkObject(b, exe);
 
         const build_test = b.addExecutable(.{
             .name = b.fmt("test_{s}", .{dayString}),
             .root_source_file = .{ .path = zigFile },
-            .target = target,
-            .optimize = mode,
         });
-        linkObject(b, exe);
+
         const install_test = b.addInstallArtifact(build_test, .{});
 
         {
@@ -135,11 +112,9 @@ pub fn build(b: *Builder) void {
         const test_util = b.step("test_util", "Run tests in util.zig");
         const test_cmd = b.addTest(.{
             .root_source_file = .{ .path = "src/util.zig" },
-            .target = target,
-            .optimize = mode,
         });
-        linkObject(b, test_cmd);
-        test_util.dependOn(&test_cmd.step);
+        const run_unit_tests = b.addRunArtifact(test_cmd);
+        test_util.dependOn(&run_unit_tests.step);
     }
 
     // Set up test executable for util.zig
@@ -147,11 +122,8 @@ pub fn build(b: *Builder) void {
         const test_util = b.step("install_tests_util", "Run tests in util.zig");
         const test_exe = b.addTest(.{
             .root_source_file = .{ .path = "src/util.zig" },
-            .target = target,
-            .optimize = mode,
         });
 
-        linkObject(b, test_exe);
         const install = b.addInstallArtifact(test_exe, .{});
         test_util.dependOn(&install.step);
     }
@@ -164,9 +136,8 @@ pub fn build(b: *Builder) void {
             .target = target,
             .optimize = mode,
         });
-
-        linkObject(b, test_cmd);
-        test_step.dependOn(&test_cmd.step);
+        const run_unit_tests = b.addRunArtifact(test_cmd);
+        test_step.dependOn(&run_unit_tests.step);
     }
 
     // Set up a step to build tests (but not run them)
@@ -178,7 +149,6 @@ pub fn build(b: *Builder) void {
             .optimize = mode,
         });
 
-        linkObject(b, test_exe);
         const test_exe_install = b.addInstallArtifact(test_exe, .{});
         test_build.dependOn(&test_exe_install.step);
     }

@@ -1,9 +1,7 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
-const List = std.ArrayList;
-const Map = std.AutoHashMap;
-const StrMap = std.StringHashMap;
-const BitSet = std.DynamicBitSet;
+const Timer = std.time.Timer;
+const print = std.debug.print;
 
 const util = @import("util.zig");
 const gpa = util.gpa;
@@ -110,7 +108,7 @@ fn runInstructions() Screen {
 }
 
 pub fn main() !void {
-    var timer = try std.time.Timer.start();
+    var timer = try Timer.start();
     const screen = runInstructions();
     const shared_time = timer.lap();
     const p1 = screen.pixelOnCount();
@@ -121,33 +119,3 @@ pub fn main() !void {
     const p2_time = timer.read() + shared_time;
     print("{s}{d}ns\n", .{ p2, p2_time });
 }
-
-// Useful stdlib functions
-const tokenize = std.mem.tokenize;
-const split = std.mem.split;
-const indexOf = std.mem.indexOfScalar;
-const indexOfAny = std.mem.indexOfAny;
-const indexOfStr = std.mem.indexOfPosLinear;
-const lastIndexOf = std.mem.lastIndexOfScalar;
-const lastIndexOfAny = std.mem.lastIndexOfAny;
-const lastIndexOfStr = std.mem.lastIndexOfLinear;
-const trim = std.mem.trim;
-const sliceMin = std.mem.min;
-const sliceMax = std.mem.max;
-
-const parseInt = std.fmt.parseInt;
-const parseFloat = std.fmt.parseFloat;
-
-const min3 = std.math.min3;
-const max3 = std.math.max3;
-
-const print = std.debug.print;
-const assert = std.debug.assert;
-
-const sort = std.sort.sort;
-const asc = std.sort.asc;
-const desc = std.sort.desc;
-
-// Generated from template/template.zig.
-// Run `zig build generate` to update.
-// Only unmodified days will be updated.

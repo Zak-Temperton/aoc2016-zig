@@ -4,6 +4,8 @@ const List = std.ArrayList;
 const Map = std.AutoHashMap;
 const StrMap = std.StringHashMap;
 const BitSet = std.DynamicBitSet;
+const Timer = std.time.Timer;
+const print = std.debug.print;
 
 const util = @import("util.zig");
 const gpa = util.gpa;
@@ -255,7 +257,7 @@ fn part2(alloc: Allocator, input: u64, input_len: u7) !Disk {
 }
 
 pub fn main() !void {
-    var timer = try std.time.Timer.start();
+    var timer = try Timer.start();
     const p1 = part1(272, 0b11101000110010100, 17);
     const p1_time = timer.read();
     for (0..p1[1]) |i| {
@@ -275,33 +277,3 @@ test "part2" {
     var disk2 = try part2(std.testing.allocator, 0b11101000110010100, 17);
     disk2.deinit();
 }
-
-// Useful stdlib functions
-const tokenize = std.mem.tokenize;
-const split = std.mem.split;
-const indexOf = std.mem.indexOfScalar;
-const indexOfAny = std.mem.indexOfAny;
-const indexOfStr = std.mem.indexOfPosLinear;
-const lastIndexOf = std.mem.lastIndexOfScalar;
-const lastIndexOfAny = std.mem.lastIndexOfAny;
-const lastIndexOfStr = std.mem.lastIndexOfLinear;
-const trim = std.mem.trim;
-const sliceMin = std.mem.min;
-const sliceMax = std.mem.max;
-
-const parseInt = std.fmt.parseInt;
-const parseFloat = std.fmt.parseFloat;
-
-const min3 = std.math.min3;
-const max3 = std.math.max3;
-
-const print = std.debug.print;
-const assert = std.debug.assert;
-
-const sort = std.sort.sort;
-const asc = std.sort.asc;
-const desc = std.sort.desc;
-
-// Generated from template/template.zig.
-// Run `zig build generate` to update.
-// Only unmodified days will be updated.

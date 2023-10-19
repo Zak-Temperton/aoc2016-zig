@@ -1,9 +1,9 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 const List = std.ArrayList;
-const Map = std.AutoHashMap;
-const StrMap = std.StringHashMap;
-const BitSet = std.DynamicBitSet;
+const Timer = std.time.Timer;
+const tokenize = std.mem.tokenizeAny;
+const print = std.debug.print;
 
 const util = @import("util.zig");
 const gpa = util.gpa;
@@ -11,7 +11,7 @@ const gpa = util.gpa;
 const data = @embedFile("data/day24.txt");
 
 pub fn main() !void {
-    var timer = try std.time.Timer.start();
+    var timer = try Timer.start();
     const p1 = try part1(gpa);
     const p1_time = timer.read();
     const p2 = try part2(gpa);
@@ -59,13 +59,11 @@ fn part1(alloc: Allocator) !usize {
         try paths.append(try bfsb(alloc, &map_clone, &nums, i));
     }
 
-    const start: []const u8 = &[_]u8{ 0, 1, 2, 3, 4, 5, 6, 7 };
-    var perm: []u8 = try alloc.dupe(u8, start);
-    defer alloc.free(perm);
-    var min: usize = followPath(paths.items, perm);
-    nextPermutation(perm);
-    while (perm[0] == 0) : (nextPermutation(perm)) {
-        var sum: usize = followPath(paths.items, perm);
+    var perm: [8]u8 = [_]u8{ 0, 1, 2, 3, 4, 5, 6, 7 };
+    var min: usize = followPath(paths.items, &perm);
+    nextPermutation(&perm);
+    while (perm[0] == 0) : (nextPermutation(&perm)) {
+        var sum: usize = followPath(paths.items, &perm);
         if (sum <= min) {
             min = sum;
         }
@@ -112,13 +110,11 @@ fn part2(alloc: Allocator) !usize {
         try paths.append(try bfsb(alloc, &map_clone, &nums, i));
     }
 
-    const start: []const u8 = &[_]u8{ 0, 1, 2, 3, 4, 5, 6, 7 };
-    var perm: []u8 = try gpa.dupe(u8, start);
-    defer gpa.free(perm);
-    var min: usize = followReturnPath(paths.items, perm);
-    nextPermutation(perm);
-    while (perm[0] == 0) : (nextPermutation(perm)) {
-        var sum: usize = followReturnPath(paths.items, perm);
+    var perm: [8]u8 = [_]u8{ 0, 1, 2, 3, 4, 5, 6, 7 };
+    var min: usize = followReturnPath(paths.items, &perm);
+    nextPermutation(&perm);
+    while (perm[0] == 0) : (nextPermutation(&perm)) {
+        var sum: usize = followReturnPath(paths.items, &perm);
         if (sum <= min) {
             min = sum;
         }
@@ -203,35 +199,7 @@ fn bfsb(all: Allocator, map: *List([]bool), nums: [][2]u8, i: usize) ![]usize {
 test "part1" {
     _ = try part1(std.testing.allocator);
 }
+
 test "part2" {
     _ = try part2(std.testing.allocator);
 }
-// Useful stdlib functions
-const tokenize = std.mem.tokenizeAny;
-const split = std.mem.split;
-const indexOf = std.mem.indexOfScalar;
-const indexOfAny = std.mem.indexOfAny;
-const indexOfStr = std.mem.indexOfPosLinear;
-const lastIndexOf = std.mem.lastIndexOfScalar;
-const lastIndexOfAny = std.mem.lastIndexOfAny;
-const lastIndexOfStr = std.mem.lastIndexOfLinear;
-const trim = std.mem.trim;
-const sliceMin = std.mem.min;
-const sliceMax = std.mem.max;
-
-const parseInt = std.fmt.parseInt;
-const parseFloat = std.fmt.parseFloat;
-
-const min3 = std.math.min3;
-const max3 = std.math.max3;
-
-const print = std.debug.print;
-const assert = std.debug.assert;
-
-const sort = std.sort.sort;
-const asc = std.sort.asc;
-const desc = std.sort.desc;
-
-// Generated from template/template.zig.
-// Run `zig build generate` to update.
-// Only unmodified days will be updated.
