@@ -1,4 +1,4 @@
-# Advent of Code 2022
+# Advent of Code 2016
 
 My solutions to Advent of Code 2016 in Zig
 
